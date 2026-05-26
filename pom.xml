@@ -17,6 +17,7 @@
 
     <modules>
         <module>msvc-usuarios/msvc-usuarios</module>
+        <module>msvc-planes</module>
     </modules>
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
