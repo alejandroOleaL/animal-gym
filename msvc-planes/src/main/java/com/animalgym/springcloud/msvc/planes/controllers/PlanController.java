@@ -2,12 +2,17 @@ package com.animalgym.springcloud.msvc.planes.controllers;
 
 import com.animalgym.springcloud.msvc.planes.entity.Plan;
 import com.animalgym.springcloud.msvc.planes.services.PlanService;
+import jakarta.validation.Valid;
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -32,14 +37,20 @@ public class PlanController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<?> crear(@RequestBody Plan plan) {
+    public ResponseEntity<?> crear(@Valid @RequestBody Plan plan, BindingResult result) {
+        if(result.hasErrors()) {
+            return validar(result);
+        }
         Plan planDb = service.guardar(plan);
         return ResponseEntity.status(HttpStatus.CREATED).body(planDb);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> editar(@PathVariable Long id, @RequestBody Plan plan) {
-
+    public ResponseEntity<?> editar(@Valid @RequestBody Plan plan, BindingResult result,
+                                    @PathVariable Long id) {
+        if(result.hasErrors()) {
+            return validar(result);
+        }
         Optional<Plan> o = service.porId(id);
         if(o.isPresent()){
             Plan planDb = service.guardar(plan);
@@ -58,6 +69,14 @@ public class PlanController {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
         return ResponseEntity.notFound().build();
+    }
+
+    private static @NonNull ResponseEntity<Map<String, String>> validar(BindingResult result) {
+        Map<String, String> errors = new HashMap<>();
+        result.getFieldErrors().forEach(error -> {
+            errors.put(error.getField(), "El campo " + error.getDefaultMessage());
+        });
+        return ResponseEntity.badRequest().body(errors);
     }
 
 }

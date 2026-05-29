@@ -1,6 +1,9 @@
 package com.animalgym.springcloud.msvc.usuarios.models.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 
 @Entity
 @Table(name = "usuarios")
@@ -10,11 +13,15 @@ public class Usuario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank
     private String nombre;
 
+    @NotBlank
     @Column(unique = true)
+    @Email
     private String email;
 
+    @NotBlank
     private String password;
 
     public Long getId() {

@@ -1,6 +1,7 @@
 package com.animalgym.springcloud.msvc.planes.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 
 @Entity
 @Table(name = "planes")
@@ -10,8 +11,8 @@ public class Plan {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotEmpty
     private String nombre;
-
 
     public String getNombre() {
         return nombre;
