@@ -1,5 +1,6 @@
 package com.animalgym.springcloud.msvc.usuarios.services;
 
+import com.animalgym.springcloud.msvc.usuarios.clients.PlanClienteRest;
 import com.animalgym.springcloud.msvc.usuarios.models.entity.Usuario;
 import com.animalgym.springcloud.msvc.usuarios.repositories.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,9 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Autowired
     private UsuarioRepository repository;
+
+    @Autowired
+    private PlanClienteRest client;
 
     @Override
     @Transactional(readOnly = true)
@@ -37,6 +41,13 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Transactional
     public void eliminar(Long id) {
         repository.deleteById(id);
+        client.eliminarPlanUsuarioPorId(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Usuario> listarPorIds(Iterable<Long> ids) {
+        return (List<Usuario>) repository.findAllById(ids);
     }
 
     @Override

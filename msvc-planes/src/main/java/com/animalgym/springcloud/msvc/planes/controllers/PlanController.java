@@ -1,7 +1,9 @@
 package com.animalgym.springcloud.msvc.planes.controllers;
 
-import com.animalgym.springcloud.msvc.planes.entity.Plan;
+import com.animalgym.springcloud.msvc.planes.models.Usuario;
+import com.animalgym.springcloud.msvc.planes.models.entity.Plan;
 import com.animalgym.springcloud.msvc.planes.services.PlanService;
+import feign.FeignException;
 import jakarta.validation.Valid;
 import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,10 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 public class PlanController {
@@ -28,8 +27,8 @@ public class PlanController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> porId(@PathVariable Long id) {
-        Optional<Plan> o = service.porId(id);
+    public ResponseEntity<?> detalle(@PathVariable Long id) {
+        Optional<Plan> o = service.porIdConUsuarios(id);
         if(o.isPresent()){
             return ResponseEntity.ok(o.get());
         }
@@ -69,6 +68,63 @@ public class PlanController {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
         return ResponseEntity.notFound().build();
+    }
+
+    @PutMapping("/asignar-usuario/{planId}")
+    public ResponseEntity<?> asignarUsuario(@RequestBody Usuario usuario, @PathVariable Long planId){
+        Optional<Usuario> o;
+        try {
+            o = service.asignarUsuario(usuario, planId);
+        } catch (FeignException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Collections.singletonMap("mensaje", "No existe el usuario por el " +
+                            "id o error en la comunicacion: " + e.getMessage()));
+        }
+
+        if(o.isPresent()){
+            return ResponseEntity.status(HttpStatus.CREATED).body(o.get());
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @PostMapping("/crear-usuario/{planId}")
+    public ResponseEntity<?> crearUsuario(@RequestBody Usuario usuario, @PathVariable Long planId){
+        Optional<Usuario> o;
+        try {
+            o = service.crearUsuario(usuario, planId);
+        } catch (FeignException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Collections.singletonMap("mensaje", "No se pudo crear el usuario " +
+                            "o error en la comunicacion: " + e.getMessage()));
+        }
+
+        if(o.isPresent()){
+            return ResponseEntity.status(HttpStatus.CREATED).body(o.get());
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @DeleteMapping("/eliminar-usuario/{planId}")
+    public ResponseEntity<?> eliminarUsuario(@RequestBody Usuario usuario, @PathVariable Long planId){
+        Optional<Usuario> o;
+        try {
+            o = service.eliminarUsuario(usuario, planId);
+        } catch (FeignException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Collections.singletonMap("mensaje", "No existe el usuario por el " +
+                            "id o error en la comunicacion: " + e.getMessage()));
+        }
+
+        if(o.isPresent()){
+            return ResponseEntity.status(HttpStatus.OK).body(o.get());
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @DeleteMapping("/eliminar-plan-usuario/{id}")
+    public ResponseEntity<?> eliminarPlanUsuarioPorId(@PathVariable Long id) {
+        service.eliminarPlanUsuarioPorId(id);
+        return ResponseEntity.noContent().build();
     }
 
     private static @NonNull ResponseEntity<Map<String, String>> validar(BindingResult result) {

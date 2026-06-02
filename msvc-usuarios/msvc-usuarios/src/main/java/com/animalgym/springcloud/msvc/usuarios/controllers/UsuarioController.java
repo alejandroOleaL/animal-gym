@@ -39,7 +39,7 @@ public class UsuarioController {
         if(result.hasErrors()) {
             return validar(result);
         }
-        
+
         if(!usuario.getEmail().isEmpty() && service.porEmail(usuario.getEmail()).isPresent()) {
             return ResponseEntity.badRequest()
                     .body(Collections
@@ -82,6 +82,11 @@ public class UsuarioController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/usuarios-por-plan")
+    public ResponseEntity<?> obtenerUsuariosPorPlan(@RequestParam List<Long> ids) {
+        return ResponseEntity.ok(service.listarPorIds(ids));
     }
 
     private static @NonNull ResponseEntity<Map<String, String>> validar(BindingResult result) {
