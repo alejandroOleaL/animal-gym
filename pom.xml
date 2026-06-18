@@ -16,7 +16,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>msvc-usuarios/msvc-usuarios</module>
+        <module>msvc-usuarios</module>
         <module>msvc-planes</module>
     </modules>
     <properties>
